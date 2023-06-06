@@ -26,12 +26,14 @@ type Sandbox struct {
 	Name      string     `json:"name"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 	Message   string     `json:"message,omitempty"`
 }
 
 type SandboxList struct {
-	Sandboxes []models.Sandbox `json:"sandboxes"`
-	Len       int              `json:"len"`
+	SandboxDetailsList []models.SandboxDetails `json:"sandbox_details_list"`
+	//	Sandboxes []models.Sandbox `json:"sandboxes"`
+	Len int `json:"len"`
 }
 
 func (p *Error) Render(w http.ResponseWriter, r *http.Request) error {

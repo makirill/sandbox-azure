@@ -16,6 +16,7 @@ func main() {
 		port = "8080"
 	}
 
+	// TDOD: add subscriptionID here
 	baseHandler := NewBaseHandler()
 
 	router := chi.NewRouter()
@@ -30,7 +31,7 @@ func main() {
 		r.Get("/api/v1/sandboxes/{sandboxName}", baseHandler.GetSandboxHandler)
 		r.Get("/api/v1/sandboxes", baseHandler.ListSandboxesHandler)
 		r.Post("/api/v1/sandboxes/{sandboxName}", baseHandler.CreateSandboxHandler)
-		r.Delete("/api/v1/sandboxes/{sandboxName}", baseHandler.DeleteSandboxHandler)
+		r.Delete("/api/v1/sandboxes/{sandboxUUID}", baseHandler.DeleteSandboxHandler)
 	})
 
 	// Main server loop
