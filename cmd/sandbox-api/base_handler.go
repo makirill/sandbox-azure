@@ -23,7 +23,7 @@ func NewBaseHandler() *BaseHandler {
 }
 
 func (h *BaseHandler) HealthHandler(w http.ResponseWriter, r *http.Request) {
-	render.Status(r, 200)
+	w.WriteHeader(http.StatusOK)
 	render.Render(w, r, &v1.HealthCheckResult{
 		Message: "OK",
 	})
@@ -35,14 +35,14 @@ func (h *BaseHandler) GetSandboxHandler(w http.ResponseWriter, r *http.Request) 
 
 	sandbox := h.model.GetByUUID(uuid)
 	if sandbox == nil {
-		render.Status(r, 404)
+		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Sandbox %s not found", uuid),
 		})
 		return
 	}
 
-	render.Status(r, 200)
+	w.WriteHeader(http.StatusOK)
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandbox.UUID,
 		Name:      sandbox.Name,
@@ -57,7 +57,7 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 
 	sandboxList := h.model.GetByName(name)
 	if len(sandboxList) == 0 {
-		render.Status(r, 404)
+		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Sandbox %s not found", name),
 		})
@@ -65,7 +65,7 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 
 	}
 
-	render.Status(r, 200)
+	w.WriteHeader(http.StatusOK)
 	render.Render(w, r, &v1.SandboxList{
 		SandboxList: sandboxList,
 	})
@@ -74,14 +74,14 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Request) {
 	sandboxList := h.model.ListAll()
 	if len(sandboxList) == 0 {
-		render.Status(r, 404)
+		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
 			Message: "No Sandboxes found",
 		})
 		return
 	}
 
-	render.Status(r, 200)
+	w.WriteHeader(http.StatusOK)
 	render.Render(w, r, &v1.SandboxList{
 		SandboxList: sandboxList,
 	})
@@ -90,7 +90,7 @@ func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Reques
 func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Request) {
 	data := &v1.SandboxRequest{}
 	if err := render.Bind(r, data); err != nil {
-		render.Status(r, 400)
+		w.WriteHeader(http.StatusBadRequest)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Failed to parse request body: %s", err),
 		})
@@ -99,7 +99,8 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 
 	sandbox, err := h.model.Add(data.Name)
 	if err != nil {
-		render.Status(r, 500)
+		log.Logger.Error("Failed to create sandbox", "name", data.Name, "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Failed to create sandbox %s: %s", data.Name, err),
 		})
@@ -107,8 +108,7 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Location", fmt.Sprintf("/api/v1/sandboxes/%s", sandbox.UUID))
-
-	render.Status(r, 201)
+	w.WriteHeader(http.StatusCreated)
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandbox.UUID,
 		Name:      sandbox.Name,
@@ -125,22 +125,23 @@ func (h *BaseHandler) DeleteSandboxHandler(w http.ResponseWriter, r *http.Reques
 
 	sandboxDetails, err := h.model.Remove(uuid)
 	if err != nil {
-		render.Status(r, 500)
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Logger.Error("Failed to delete sandbox", "uuid", uuid, "error", err)
 		render.Render(w, r, &v1.Error{
-			Message: fmt.Sprintf("Error deleting sandbox %s: %s", uuid, err),
+			Message: fmt.Sprintf("Error delete sandbox %s: %s", uuid, err),
 		})
 		return
 	}
 
 	if sandboxDetails == nil {
-		render.Status(r, 404)
+		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Sandbox %s not found", uuid),
 		})
 		return
 	}
 
-	render.Status(r, 204)
+	w.WriteHeader(http.StatusNoContent)
 	render.NoContent(w, r)
 
 	log.Logger.Info("Sandbox deleted", "uuid", sandboxDetails.UUID, "name", sandboxDetails.Name)
@@ -151,7 +152,7 @@ func (h *BaseHandler) UpdateSandboxHandler(w http.ResponseWriter, r *http.Reques
 	data := &v1.SandboxUpdateRequest{}
 
 	if err := render.Bind(r, data); err != nil {
-		render.Status(r, 400)
+		w.WriteHeader(http.StatusBadRequest)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Failed to parse request body: %s", err),
 		})
@@ -160,14 +161,14 @@ func (h *BaseHandler) UpdateSandboxHandler(w http.ResponseWriter, r *http.Reques
 
 	sandboxDetails := h.model.UpdateExpiration(uuid, data.ExpiresAt)
 	if sandboxDetails == nil {
-		render.Status(r, 404)
+		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Sandbox %s not found", uuid),
 		})
 		return
 	}
 
-	render.Status(r, 200)
+	w.WriteHeader(http.StatusOK)
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandboxDetails.UUID,
 		Name:      sandboxDetails.Name,
