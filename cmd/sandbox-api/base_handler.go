@@ -106,6 +106,8 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	w.Header().Set("Location", fmt.Sprintf("/api/v1/sandboxes/%s", sandbox.UUID))
+
 	render.Status(r, 201)
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandbox.UUID,
