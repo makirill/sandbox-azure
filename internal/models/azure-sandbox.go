@@ -26,15 +26,16 @@ func (s *AzureSubscription) Add(name string) (*SandboxDetails, error) {
 	azureDetails := AzureSandboxInstance{
 		details: SandboxDetails{
 			Name:      name,
-			UUID:      uuid.New().String(),
+			UUID:      uuid.New().String(), // TODO: not sure if this is the correct type for UUID (like open-fs94 ??)
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
-			ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 7), // TODO: default expiration time is 7 days
 		},
 	}
 
 	// TODO: Create the sandbox in Azure here
 	// and add the Azure Resources details to the AzureSandboxIndex structure
+
 	s.instances = append(s.instances, azureDetails)
 
 	return &azureDetails.details, nil

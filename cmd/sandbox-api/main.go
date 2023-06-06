@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	log.InitLoggers(false)
+	log.InitLoggers(true)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -28,10 +28,13 @@ func main() {
 
 		// Routes
 		r.Get("/api/v1/health", baseHandler.HealthHandler)
-		r.Get("/api/v1/sandboxes/{sandboxName}", baseHandler.GetSandboxHandler)
+
 		r.Get("/api/v1/sandboxes", baseHandler.ListSandboxesHandler)
-		r.Post("/api/v1/sandboxes/{sandboxName}", baseHandler.CreateSandboxHandler)
-		r.Delete("/api/v1/sandboxes/{sandboxUUID}", baseHandler.DeleteSandboxHandler)
+		r.Get("/api/v1/sandboxes/{uuid}", baseHandler.GetSandboxHandler)
+		r.Get("/api/v1/sandboxes/name/{name}", baseHandler.GetSandboxByNameHandler)
+		r.Post("/api/v1/sandboxes", baseHandler.CreateSandboxHandler)
+		r.Patch("/api/v1/sandboxes/{uuid}", baseHandler.UpdateSandboxHandler)
+		r.Delete("/api/v1/sandboxes/{uuid}", baseHandler.DeleteSandboxHandler)
 	})
 
 	// Main server loop
