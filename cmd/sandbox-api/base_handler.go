@@ -142,7 +142,6 @@ func (h *BaseHandler) DeleteSandboxHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-	render.NoContent(w, r)
 
 	log.Logger.Info("Sandbox deleted", "uuid", sandboxDetails.UUID, "name", sandboxDetails.Name)
 }

@@ -3,8 +3,11 @@ package main
 import (
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/makirill/sandbox-azure/internal/log"
 )
 
@@ -16,15 +19,34 @@ func main() {
 		port = "8080"
 	}
 
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Err.Fatal("JWT_SECRET is not set")
+	}
+
+	authSecret := strings.Trim(jwtSecret, "\r\n\t ")
+	tokenAuth := jwtauth.New("HS256", []byte(authSecret), nil)
+
+	// For debugging/example purposes, we generate and print
+	// a sample jwt token with claims `user_id:123` here:
+	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": "sandbox123"})
+	log.Debug.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
+
 	// TDOD: add subscriptionID here
 	baseHandler := NewBaseHandler()
 
 	router := chi.NewRouter()
 
+	router.Use(middleware.CleanPath)
+	router.Use(middleware.RequestID)
+	router.Use(middleware.SetHeader("Content-Type", "application/json"))
+	router.Use(middleware.AllowContentType("application/json"))
+
 	// Protected routes
 	router.Group(func(r chi.Router) {
 		// Middleware
-		//r.Use()
+		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Authenticator)
 
 		// Routes
 		r.Get("/api/v1/health", baseHandler.HealthHandler)
