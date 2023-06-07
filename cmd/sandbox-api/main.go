@@ -29,7 +29,10 @@ func main() {
 
 	// For debugging/example purposes, we generate and print
 	// a sample jwt token with claims `user_id:123` here:
-	_, tokenString, _ := tokenAuth.Encode(map[string]interface{}{"user_id": "sandbox123"})
+	_, tokenString, err := tokenAuth.Encode(map[string]interface{}{"user_id": "sandbox123"})
+	if err != nil {
+		log.Err.Fatal(err)
+	}
 	log.Debug.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
 
 	// TDOD: add subscriptionID here
