@@ -8,6 +8,7 @@ type SandboxDetails struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	ExpiresAt time.Time
+	Status    SandboxStatus
 }
 
 type Sandbox interface {
@@ -17,4 +18,18 @@ type Sandbox interface {
 	GetByName(name string) []SandboxDetails
 	GetByUUID(uuid string) *SandboxDetails
 	UpdateExpiration(uuid string, expiresAt time.Time) *SandboxDetails
+}
+
+type SandboxStatus int64
+
+const (
+	Running SandboxStatus = iota
+	Stopped
+	Expired
+	Pending
+	Failed
+)
+
+func (s SandboxStatus) String() string {
+	return [...]string{"Running", "Stopped", "Expired", "Pending", "Failed"}[s]
 }

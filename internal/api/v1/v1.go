@@ -4,8 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"time"
-
-	"github.com/makirill/sandbox-azure/internal/models"
 )
 
 type Error struct {
@@ -27,10 +25,11 @@ type Sandbox struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	Status    string     `json:"status"`
 }
 
 type SandboxList struct {
-	SandboxList []models.SandboxDetails `json:"sandbox_list"`
+	SandboxList []Sandbox `json:"sandbox_list"`
 }
 
 type SandboxRequest struct {

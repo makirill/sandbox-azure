@@ -49,6 +49,7 @@ func (h *BaseHandler) GetSandboxHandler(w http.ResponseWriter, r *http.Request) 
 		CreatedAt: &sandbox.CreatedAt,
 		UpdatedAt: &sandbox.UpdatedAt,
 		ExpiresAt: &sandbox.ExpiresAt,
+		Status:    sandbox.Status.String(),
 	})
 }
 
@@ -65,10 +66,21 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 
 	}
 
+	var responsePayload v1.SandboxList
+	responsePayload.SandboxList = make([]v1.Sandbox, len(sandboxList))
+	for i, sandbox := range sandboxList {
+		responsePayload.SandboxList[i] = v1.Sandbox{
+			UUID:      sandbox.UUID,
+			Name:      sandbox.Name,
+			CreatedAt: &sandbox.CreatedAt,
+			UpdatedAt: &sandbox.UpdatedAt,
+			ExpiresAt: &sandbox.ExpiresAt,
+			Status:    sandbox.Status.String(),
+		}
+	}
+
 	w.WriteHeader(http.StatusOK)
-	render.Render(w, r, &v1.SandboxList{
-		SandboxList: sandboxList,
-	})
+	render.Render(w, r, &responsePayload)
 }
 
 func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,10 +93,22 @@ func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	var responsePayload v1.SandboxList
+	responsePayload.SandboxList = make([]v1.Sandbox, len(sandboxList))
+	for i, sandbox := range sandboxList {
+		responsePayload.SandboxList[i] = v1.Sandbox{
+			UUID:      sandbox.UUID,
+			Name:      sandbox.Name,
+			CreatedAt: &sandbox.CreatedAt,
+			UpdatedAt: &sandbox.UpdatedAt,
+			ExpiresAt: &sandbox.ExpiresAt,
+			Status:    sandbox.Status.String(),
+		}
+	}
+
 	w.WriteHeader(http.StatusOK)
-	render.Render(w, r, &v1.SandboxList{
-		SandboxList: sandboxList,
-	})
+	render.Render(w, r, &responsePayload)
+
 }
 
 func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Request) {
@@ -115,6 +139,7 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		CreatedAt: &sandbox.CreatedAt,
 		UpdatedAt: &sandbox.UpdatedAt,
 		ExpiresAt: &sandbox.ExpiresAt,
+		Status:    sandbox.Status.String(),
 	})
 
 	log.Logger.Info("Sandbox created", "uuid", sandbox.UUID, "name", sandbox.Name)
@@ -174,6 +199,7 @@ func (h *BaseHandler) UpdateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		CreatedAt: &sandboxDetails.CreatedAt,
 		UpdatedAt: &sandboxDetails.UpdatedAt,
 		ExpiresAt: &sandboxDetails.ExpiresAt,
+		Status:    sandboxDetails.Status.String(),
 	})
 
 	log.Logger.Info("Sandbox updated", "uuid", sandboxDetails.UUID, "name", sandboxDetails.Name)

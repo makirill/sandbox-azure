@@ -30,6 +30,7 @@ func (s *AzureSubscription) Add(name string) (*SandboxDetails, error) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 			ExpiresAt: time.Now().Add(time.Hour * 24 * 7), // TODO: default expiration time is 7 days
+			Status:    Pending,
 		},
 	}
 
