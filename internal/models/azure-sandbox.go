@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -10,7 +9,10 @@ import (
 )
 
 const (
-	error_not_found = "not found"
+	error_not_found       = "not found"
+	error_already_deleted = "already deleted"
+
+	default_expiration_time = time.Hour * 24 * 7 // 7 days
 )
 
 type AzureSandboxInstance struct {
@@ -41,10 +43,10 @@ func (s *AzureSubscription) Add(name string) SandboxDetails {
 		azureDetails := AzureSandboxInstance{
 			details: SandboxDetails{
 				Name:      name,
-				UUID:      uuid.String(), // TODO: not sure if this is the correct type for UUID (like open-fs94 ??)
+				UUID:      uuid.String(),
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
-				ExpiresAt: time.Now().Add(time.Hour * 24 * 7), // TODO: default expiration time is 7 days
+				ExpiresAt: time.Now().Add(default_expiration_time),
 				Status:    Pending,
 			},
 		}
@@ -66,23 +68,30 @@ func (s *AzureSubscription) Add(name string) SandboxDetails {
 
 func (s *AzureSubscription) Remove(id string) (SandboxDetails, error) {
 
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		return SandboxDetails{}, err
+	}
+
+	s.RLock()
+	azureSandboxDetails, ok := s.instances[uuid]
+	s.RUnlock()
+
+	if !ok {
+		return SandboxDetails{}, errors.New(error_not_found)
+	}
+
+	if azureSandboxDetails.details.Status == Deleted {
+		return SandboxDetails{}, errors.New(error_already_deleted)
+	}
+
 	c := make(chan SandboxDetails)
 	e := make(chan error)
 
 	go func() {
-		uuid, err := uuid.Parse(id)
-		if err != nil {
-			e <- err
-			return
-		}
 
 		s.Lock()
 		azureSandboxInstance := s.instances[uuid]
-		if azureSandboxInstance == (AzureSandboxInstance{}) {
-			e <- errors.New(error_not_found)
-			return
-		}
-
 		delete(s.instances, uuid)
 		s.Unlock()
 
@@ -96,8 +105,6 @@ func (s *AzureSubscription) Remove(id string) (SandboxDetails, error) {
 		s.Lock()
 		s.instances[uuid] = azureSandboxInstance
 		s.Unlock()
-
-		fmt.Println("Sandbox deleted", azureSandboxInstance.details.UUID)
 	}()
 
 	select {
@@ -164,6 +171,7 @@ func (s *AzureSubscription) UpdateExpiration(id string, expiresAt time.Time) (Sa
 	}
 
 	s.Lock()
+	defer s.Unlock()
 
 	azureSandboxInstance := s.instances[uuid]
 
@@ -174,8 +182,6 @@ func (s *AzureSubscription) UpdateExpiration(id string, expiresAt time.Time) (Sa
 	azureSandboxInstance.details.ExpiresAt = expiresAt
 	azureSandboxInstance.details.UpdatedAt = time.Now()
 	s.instances[uuid] = azureSandboxInstance
-
-	s.Unlock()
 
 	return azureSandboxInstance.details, nil
 }

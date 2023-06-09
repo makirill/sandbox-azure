@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8080
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoic2FuZGJveDEyMyJ9.T5Syh6MHFyq3FLvFgc7aUax7hlfaRjlrko33PQINmAg
+@accessToken = 
 
 ### Get Health
 GET {{baseUrl}}/api/v1/health
@@ -18,7 +18,7 @@ Accept: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "name": "Sandbox1"
+    "name": "Sandbox3"
 }
 
 ### Get last created Sandbox by id
@@ -40,4 +40,25 @@ Authorization: Bearer {{accessToken}}
 ### Delete last created Sandbox by id
 @lastSandbox = {{createSandbox.response.headers.Location}}
 DELETE {{baseUrl}}{{createSandbox.response.headers.Location}}
+Authorization: Bearer {{accessToken}}
+
+### Get Sandbox by id
+@lastSandbox = {{createSandbox.response.headers.Location}}
+GET {{baseUrl}}/api/v1/sandboxes/name/Sandbox3
+Authorization: Bearer {{accessToken}}
+
+### Update Sandbox by id with new expiration date
+
+PATCH {{baseUrl}}/api/v1/sandboxes/991b45e5-63cb-45c0-a33a-df6d7a6e21d5
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "expires_at": "2025-01-01T21:54:42.123Z"
+}
+
+### Delete Sandbox by id
+
+DELETE {{baseUrl}}/api/v1/sandboxes/991b45e5-63cb-45c0-a33a-df6d7a6e21d5
 Authorization: Bearer {{accessToken}}
