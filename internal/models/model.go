@@ -12,12 +12,12 @@ type SandboxDetails struct {
 }
 
 type Sandbox interface {
-	Add(name string) (*SandboxDetails, error)
-	Remove(uuid string) (*SandboxDetails, error)
+	Add(name string) SandboxDetails
+	Remove(id string) (SandboxDetails, error)
 	ListAll() []SandboxDetails
 	GetByName(name string) []SandboxDetails
-	GetByUUID(uuid string) *SandboxDetails
-	UpdateExpiration(uuid string, expiresAt time.Time) *SandboxDetails
+	GetByUUID(id string) (SandboxDetails, error)
+	UpdateExpiration(id string, expiresAt time.Time) (SandboxDetails, error)
 }
 
 type SandboxStatus int64
@@ -28,8 +28,9 @@ const (
 	Expired
 	Pending
 	Failed
+	Deleted
 )
 
 func (s SandboxStatus) String() string {
-	return [...]string{"Running", "Stopped", "Expired", "Pending", "Failed"}[s]
+	return [...]string{"Running", "Stopped", "Expired", "Pending", "Failed", "Deleted"}[s]
 }

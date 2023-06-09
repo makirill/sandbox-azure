@@ -24,6 +24,12 @@ func main() {
 		log.Err.Fatal("JWT_SECRET is not set")
 	}
 
+	subscriptionID := os.Getenv("AZURE_SUBSCRIPTION_ID")
+	if subscriptionID == "" {
+		// log.Err.Fatal("AZURE_SUBSCRIPTION_ID is not set")
+		log.Logger.Warn("AZURE_SUBSCRIPTION_ID is not set") // TODO: remove this line
+	}
+
 	authSecret := strings.Trim(jwtSecret, "\r\n\t ")
 	tokenAuth := jwtauth.New("HS256", []byte(authSecret), nil)
 
@@ -35,8 +41,7 @@ func main() {
 	}
 	log.Debug.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
 
-	// TDOD: add subscriptionID here
-	baseHandler := NewBaseHandler()
+	baseHandler := NewBaseHandler(subscriptionID)
 
 	router := chi.NewRouter()
 

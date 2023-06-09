@@ -15,10 +15,9 @@ type BaseHandler struct {
 	model models.Sandbox
 }
 
-// TDOD: add subscriptionID here
-func NewBaseHandler() *BaseHandler {
+func NewBaseHandler(subscriptionID string) *BaseHandler {
 	return &BaseHandler{
-		model: models.InitAzureSubscription("test"),
+		model: models.InitAzureSubscription(subscriptionID),
 	}
 }
 
@@ -33,11 +32,11 @@ func (h *BaseHandler) HealthHandler(w http.ResponseWriter, r *http.Request) {
 func (h *BaseHandler) GetSandboxHandler(w http.ResponseWriter, r *http.Request) {
 	uuid := chi.URLParam(r, "uuid")
 
-	sandbox := h.model.GetByUUID(uuid)
-	if sandbox == nil {
+	sandbox, err := h.model.GetByUUID(uuid)
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
-			Message: fmt.Sprintf("Sandbox %s not found", uuid),
+			Message: fmt.Sprintf("Get Sandbox by ID: %s, error: %s", uuid, err.Error()),
 		})
 		return
 	}
@@ -46,9 +45,9 @@ func (h *BaseHandler) GetSandboxHandler(w http.ResponseWriter, r *http.Request) 
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandbox.UUID,
 		Name:      sandbox.Name,
-		CreatedAt: &sandbox.CreatedAt,
-		UpdatedAt: &sandbox.UpdatedAt,
-		ExpiresAt: &sandbox.ExpiresAt,
+		CreatedAt: sandbox.CreatedAt,
+		UpdatedAt: sandbox.UpdatedAt,
+		ExpiresAt: sandbox.ExpiresAt,
 		Status:    sandbox.Status.String(),
 	})
 }
@@ -72,9 +71,9 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 		responsePayload.SandboxList[i] = v1.Sandbox{
 			UUID:      sandbox.UUID,
 			Name:      sandbox.Name,
-			CreatedAt: &sandbox.CreatedAt,
-			UpdatedAt: &sandbox.UpdatedAt,
-			ExpiresAt: &sandbox.ExpiresAt,
+			CreatedAt: sandbox.CreatedAt,
+			UpdatedAt: sandbox.UpdatedAt,
+			ExpiresAt: sandbox.ExpiresAt,
 			Status:    sandbox.Status.String(),
 		}
 	}
@@ -99,9 +98,9 @@ func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Reques
 		responsePayload.SandboxList[i] = v1.Sandbox{
 			UUID:      sandbox.UUID,
 			Name:      sandbox.Name,
-			CreatedAt: &sandbox.CreatedAt,
-			UpdatedAt: &sandbox.UpdatedAt,
-			ExpiresAt: &sandbox.ExpiresAt,
+			CreatedAt: sandbox.CreatedAt,
+			UpdatedAt: sandbox.UpdatedAt,
+			ExpiresAt: sandbox.ExpiresAt,
 			Status:    sandbox.Status.String(),
 		}
 	}
@@ -121,24 +120,16 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sandbox, err := h.model.Add(data.Name)
-	if err != nil {
-		log.Logger.Error("Failed to create sandbox", "name", data.Name, "error", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		render.Render(w, r, &v1.Error{
-			Message: fmt.Sprintf("Failed to create sandbox %s: %s", data.Name, err),
-		})
-		return
-	}
+	sandbox := h.model.Add(data.Name)
 
 	w.Header().Set("Location", fmt.Sprintf("/api/v1/sandboxes/%s", sandbox.UUID))
 	w.WriteHeader(http.StatusCreated)
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandbox.UUID,
 		Name:      sandbox.Name,
-		CreatedAt: &sandbox.CreatedAt,
-		UpdatedAt: &sandbox.UpdatedAt,
-		ExpiresAt: &sandbox.ExpiresAt,
+		CreatedAt: sandbox.CreatedAt,
+		UpdatedAt: sandbox.UpdatedAt,
+		ExpiresAt: sandbox.ExpiresAt,
 		Status:    sandbox.Status.String(),
 	})
 
@@ -154,14 +145,6 @@ func (h *BaseHandler) DeleteSandboxHandler(w http.ResponseWriter, r *http.Reques
 		log.Logger.Error("Failed to delete sandbox", "uuid", uuid, "error", err)
 		render.Render(w, r, &v1.Error{
 			Message: fmt.Sprintf("Error delete sandbox %s: %s", uuid, err),
-		})
-		return
-	}
-
-	if sandboxDetails == nil {
-		w.WriteHeader(http.StatusNotFound)
-		render.Render(w, r, &v1.Error{
-			Message: fmt.Sprintf("Sandbox %s not found", uuid),
 		})
 		return
 	}
@@ -183,11 +166,11 @@ func (h *BaseHandler) UpdateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sandboxDetails := h.model.UpdateExpiration(uuid, data.ExpiresAt)
-	if sandboxDetails == nil {
+	sandboxDetails, err := h.model.UpdateExpiration(uuid, data.ExpiresAt)
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
-			Message: fmt.Sprintf("Sandbox %s not found", uuid),
+			Message: fmt.Sprintf("Update Sandbox %s : %s", uuid, err.Error()),
 		})
 		return
 	}
@@ -196,9 +179,9 @@ func (h *BaseHandler) UpdateSandboxHandler(w http.ResponseWriter, r *http.Reques
 	render.Render(w, r, &v1.Sandbox{
 		UUID:      sandboxDetails.UUID,
 		Name:      sandboxDetails.Name,
-		CreatedAt: &sandboxDetails.CreatedAt,
-		UpdatedAt: &sandboxDetails.UpdatedAt,
-		ExpiresAt: &sandboxDetails.ExpiresAt,
+		CreatedAt: sandboxDetails.CreatedAt,
+		UpdatedAt: sandboxDetails.UpdatedAt,
+		ExpiresAt: sandboxDetails.ExpiresAt,
 		Status:    sandboxDetails.Status.String(),
 	})
 

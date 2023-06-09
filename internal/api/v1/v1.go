@@ -20,12 +20,12 @@ type HealthCheckResult struct {
 }
 
 type Sandbox struct {
-	UUID      string     `json:"uuid"`
-	Name      string     `json:"name"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
-	ExpiresAt *time.Time `json:"expires_at,omitempty"`
-	Status    string     `json:"status"`
+	UUID      string    `json:"uuid"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	Status    string    `json:"status"`
 }
 
 type SandboxList struct {
