@@ -17,7 +17,7 @@ type BaseHandler struct {
 
 func NewBaseHandler(subscriptionID string) *BaseHandler {
 	return &BaseHandler{
-		model: models.InitAzureSubscription(subscriptionID),
+		model: models.InitAzureSandbox(subscriptionID),
 	}
 }
 
@@ -120,7 +120,7 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sandbox := h.model.Add(data.Name)
+	sandbox := h.model.Create(data.Name) // TODO: add expiration date
 
 	w.Header().Set("Location", fmt.Sprintf("/api/v1/sandboxes/%s", sandbox.UUID))
 	w.WriteHeader(http.StatusCreated)
