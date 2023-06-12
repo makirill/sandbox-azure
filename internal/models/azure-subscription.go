@@ -63,8 +63,8 @@ func (s *AzureSandbox) Remove(id string) (SandboxDetails, error) {
 			return
 		}
 
-		if details.Status == Deleted {
-			e <- errors.New(error_already_deleted)
+		if details.Status == Deleted || details.Status == Pending {
+			e <- errors.New(error_wrong_status)
 			return
 		}
 

@@ -4,6 +4,7 @@ import "time"
 
 const (
 	error_not_found       = "not found"
+	error_wrong_status    = "wrong status"
 	error_already_deleted = "already deleted"
 )
 
