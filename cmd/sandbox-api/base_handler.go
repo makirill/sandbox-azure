@@ -48,14 +48,22 @@ func (h *BaseHandler) GetSandboxHandler(w http.ResponseWriter, r *http.Request) 
 		CreatedAt: sandbox.CreatedAt,
 		UpdatedAt: sandbox.UpdatedAt,
 		ExpiresAt: sandbox.ExpiresAt,
-		Status:    sandbox.Status.String(),
+		Status:    sandbox.Status,
 	})
 }
 
 func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
-	sandboxList := h.model.GetByName(name)
+	sandboxList, err := h.model.GetByName(name)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		render.Render(w, r, &v1.Error{
+			Message: fmt.Sprintf("Get Sandbox by name: %s, error: %s", name, err.Error()),
+		})
+		return
+	}
+
 	if len(sandboxList) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
@@ -74,7 +82,7 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 			CreatedAt: sandbox.CreatedAt,
 			UpdatedAt: sandbox.UpdatedAt,
 			ExpiresAt: sandbox.ExpiresAt,
-			Status:    sandbox.Status.String(),
+			Status:    sandbox.Status,
 		}
 	}
 
@@ -83,7 +91,15 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Request) {
-	sandboxList := h.model.ListAll()
+	sandboxList, err := h.model.ListAll()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		render.Render(w, r, &v1.Error{
+			Message: fmt.Sprintf("List Sandboxes error: %s", err.Error()),
+		})
+		return
+	}
+
 	if len(sandboxList) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		render.Render(w, r, &v1.Error{
@@ -101,7 +117,7 @@ func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Reques
 			CreatedAt: sandbox.CreatedAt,
 			UpdatedAt: sandbox.UpdatedAt,
 			ExpiresAt: sandbox.ExpiresAt,
-			Status:    sandbox.Status.String(),
+			Status:    sandbox.Status,
 		}
 	}
 
@@ -120,7 +136,14 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sandbox := h.model.Create(data.Name) // TODO: add expiration date
+	sandbox, err := h.model.Create(data.Name) // TODO: add expiration date
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		render.Render(w, r, &v1.Error{
+			Message: fmt.Sprintf("Create Sandbox error: %s", err.Error()),
+		})
+		return
+	}
 
 	w.Header().Set("Location", fmt.Sprintf("/api/v1/sandboxes/%s", sandbox.UUID))
 	w.WriteHeader(http.StatusCreated)
@@ -130,7 +153,7 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		CreatedAt: sandbox.CreatedAt,
 		UpdatedAt: sandbox.UpdatedAt,
 		ExpiresAt: sandbox.ExpiresAt,
-		Status:    sandbox.Status.String(),
+		Status:    sandbox.Status,
 	})
 
 	log.Logger.Info("Sandbox created", "uuid", sandbox.UUID, "name", sandbox.Name)
@@ -182,7 +205,7 @@ func (h *BaseHandler) UpdateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		CreatedAt: sandboxDetails.CreatedAt,
 		UpdatedAt: sandboxDetails.UpdatedAt,
 		ExpiresAt: sandboxDetails.ExpiresAt,
-		Status:    sandboxDetails.Status.String(),
+		Status:    sandboxDetails.Status,
 	})
 
 	log.Logger.Info("Sandbox updated", "uuid", sandboxDetails.UUID, "name", sandboxDetails.Name)
