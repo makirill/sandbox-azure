@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/makirill/sandbox-azure/internal/log"
 )
 
@@ -19,15 +21,12 @@ func main() {
 		port = "8080"
 	}
 
+	//----------------------------------------
+	// JWT auth
+	//----------------------------------------
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
 		log.Err.Fatal("JWT_SECRET is not set")
-	}
-
-	subscriptionID := os.Getenv("AZURE_SUBSCRIPTION_ID")
-	if subscriptionID == "" {
-		// log.Err.Fatal("AZURE_SUBSCRIPTION_ID is not set")
-		log.Logger.Warn("AZURE_SUBSCRIPTION_ID is not set") // TODO: remove this line
 	}
 
 	authSecret := strings.Trim(jwtSecret, "\r\n\t ")
@@ -41,7 +40,21 @@ func main() {
 	}
 	log.Debug.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
 
-	baseHandler := NewBaseHandler(subscriptionID)
+	//----------------------------------------
+	// Database
+	//----------------------------------------
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		log.Err.Fatal("DATABASE_URL is not set")
+	}
+
+	dbPool, err := pgxpool.Connect(context.Background(), connStr)
+	if err != nil {
+		log.Err.Fatal("Error oppening database connection", err)
+	}
+	defer dbPool.Close()
+
+	baseHandler := NewBaseHandler(dbPool)
 
 	router := chi.NewRouter()
 

@@ -8,19 +8,13 @@ import (
 )
 
 type AzureSandboxPostgres struct {
-	db_pool *pgxpool.Pool
+	dbPool *pgxpool.Pool
 }
 
-func InitAzureSandboxesPostgres(connString string) (*AzureSandboxPostgres, error) {
-	db_pool, err := pgxpool.Connect(context.Background(), connString)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: Where to close it??
+func InitAzureSandboxesPostgres(dbPool *pgxpool.Pool) (*AzureSandboxPostgres, error) {
 
 	return &AzureSandboxPostgres{
-		db_pool: db_pool,
+		dbPool: dbPool,
 	}, nil
 
 }
@@ -28,7 +22,7 @@ func InitAzureSandboxesPostgres(connString string) (*AzureSandboxPostgres, error
 func (s *AzureSandboxPostgres) Insert(name string) (string, error) {
 	id := ""
 
-	err := s.db_pool.QueryRow(context.Background(), "SELECT public.insert_sandbox($1)", name).Scan(&id)
+	err := s.dbPool.QueryRow(context.Background(), "SELECT public.insert_sandbox($1)", name).Scan(&id)
 
 	return id, err
 }
@@ -36,14 +30,14 @@ func (s *AzureSandboxPostgres) Insert(name string) (string, error) {
 func (s *AzureSandboxPostgres) Delete(id string) (bool, error) {
 	ok := false
 
-	err := s.db_pool.QueryRow(context.Background(), "SELECT public.delete_sandbox($1)", id).Scan(&ok)
+	err := s.dbPool.QueryRow(context.Background(), "SELECT public.delete_sandbox($1)", id).Scan(&ok)
 
 	return ok, err
 }
 
 func (s *AzureSandboxPostgres) GetAll() ([]SandboxDetails, error) {
 
-	rows, err := s.db_pool.Query(context.Background(), "SELECT * FROM public.get_sandbox_all()")
+	rows, err := s.dbPool.Query(context.Background(), "SELECT * FROM public.get_sandbox_all()")
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +61,7 @@ func (s *AzureSandboxPostgres) GetAll() ([]SandboxDetails, error) {
 
 func (s *AzureSandboxPostgres) GetByName(name string) ([]SandboxDetails, error) {
 
-	rows, err := s.db_pool.Query(context.Background(), "SELECT * FROM public.get_sandbox_by_name($1)", name)
+	rows, err := s.dbPool.Query(context.Background(), "SELECT * FROM public.get_sandbox_by_name($1)", name)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +87,7 @@ func (s *AzureSandboxPostgres) GetByID(id string) (SandboxDetails, error) {
 
 	sandbox := SandboxDetails{}
 
-	err := s.db_pool.QueryRow(context.Background(), "SELECT * FROM public.get_sandbox_by_id($1)", id).Scan(
+	err := s.dbPool.QueryRow(context.Background(), "SELECT * FROM public.get_sandbox_by_id($1)", id).Scan(
 		&sandbox.UUID,
 		&sandbox.Name,
 		&sandbox.CreatedAt,
@@ -107,7 +101,7 @@ func (s *AzureSandboxPostgres) GetByID(id string) (SandboxDetails, error) {
 func (s *AzureSandboxPostgres) UpdateExpiration(id string, expiresAt time.Time) (bool, error) {
 	ok := false
 
-	err := s.db_pool.QueryRow(context.Background(), "SELECT public.update_sandbox_expires_at($1, $2)", id, expiresAt).Scan(&ok)
+	err := s.dbPool.QueryRow(context.Background(), "SELECT public.update_sandbox_expires_at($1, $2)", id, expiresAt).Scan(&ok)
 
 	return ok, err
 }
@@ -115,7 +109,7 @@ func (s *AzureSandboxPostgres) UpdateExpiration(id string, expiresAt time.Time) 
 func (s *AzureSandboxPostgres) UpdateStatus(id string, status string) (bool, error) {
 	ok := false
 
-	err := s.db_pool.QueryRow(context.Background(), "SELECT public.update_sandbox_status($1, $2)", id, status).Scan(&ok)
+	err := s.dbPool.QueryRow(context.Background(), "SELECT public.update_sandbox_status($1, $2)", id, status).Scan(&ok)
 
 	return ok, err
 }

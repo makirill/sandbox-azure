@@ -4,21 +4,19 @@ import (
 	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/makirill/sandbox-azure/internal/log"
 )
 
 type AzureSandbox struct {
-	subscriptionID string
-	instances      SandboxData
+	instances SandboxData
 }
 
-func InitAzureSandbox(subscriptionID string) *AzureSandbox {
-	// TODO: it should not be there
-	sb, _ := InitAzureSandboxesPostgres("postgres://postgres:abc123@localhost/sandbox")
+func InitAzureSandbox(dbPool *pgxpool.Pool) *AzureSandbox {
+	sd, _ := InitAzureSandboxesPostgres(dbPool)
 
 	return &AzureSandbox{
-		subscriptionID: subscriptionID,
-		instances:      sb,
+		instances: sd,
 	}
 }
 

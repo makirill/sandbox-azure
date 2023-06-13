@@ -18,7 +18,7 @@ Accept: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "name": "Sandbox3"
+    "name": "Sandbox4"
 }
 
 ### Get last created Sandbox by id
@@ -26,7 +26,7 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}{{createSandbox.response.headers.Location}}
 Authorization: Bearer {{accessToken}}
 
-### Update last created Sandbox by id with new expiration date
+### Update last created Sandbox with new expiration date
 @lastSandbox = {{createSandbox.response.headers.Location}}
 PATCH {{baseUrl}}{{createSandbox.response.headers.Location}}
 Content-Type: application/json
@@ -37,17 +37,26 @@ Authorization: Bearer {{accessToken}}
     "expires_at": "2024-01-01T21:54:42.123Z"
 }
 
-### Delete last created Sandbox by id
+### Delete last created Sandbox
 @lastSandbox = {{createSandbox.response.headers.Location}}
 DELETE {{baseUrl}}{{createSandbox.response.headers.Location}}
 Authorization: Bearer {{accessToken}}
 
-### Get Sandbox by id
+#########################################################################################
+
+
+### Get Sandbox by Name
 @lastSandbox = {{createSandbox.response.headers.Location}}
 GET {{baseUrl}}/api/v1/sandboxes/name/Sandbox3
 Authorization: Bearer {{accessToken}}
 
-### Update Sandbox by id with new expiration date
+### Get Sandbox by id
+
+GET {{baseUrl}}/api/v1/sandboxes/72314611-6249-4ed5-84ce-8bbf406e1821
+Authorization: Bearer {{accessToken}}
+
+
+### Update Sandbox with new expiration date
 
 PATCH {{baseUrl}}/api/v1/sandboxes/991b45e5-63cb-45c0-a33a-df6d7a6e21d5
 Content-Type: application/json
@@ -58,7 +67,10 @@ Authorization: Bearer {{accessToken}}
     "expires_at": "2025-01-01T21:54:42.123Z"
 }
 
-### Delete Sandbox by id
+### Delete Sandbox
 
-DELETE {{baseUrl}}/api/v1/sandboxes/991b45e5-63cb-45c0-a33a-df6d7a6e21d5
+DELETE {{baseUrl}}/api/v1/sandboxes/4e6e85e1-abd2-471a-a079-1eebafd39c06
 Authorization: Bearer {{accessToken}}
+
+
+
