@@ -4,7 +4,9 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -84,7 +86,17 @@ func main() {
 		r.Delete("/api/v1/sandboxes/{uuid}", baseHandler.DeleteSandboxHandler)
 	})
 
-	// Main server loop
-	log.Logger.Info("Listening on port " + port)
-	log.Err.Fatal(http.ListenAndServe(":"+port, router))
+	go func() {
+		// Main server loop
+		log.Logger.Info("Listening on port " + port)
+		log.Err.Fatal(http.ListenAndServe(":"+port, router))
+	}()
+
+	// Graceful shutdown
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+
+	<-sigs
+
+	log.Logger.Info("Shutting down...")
 }
