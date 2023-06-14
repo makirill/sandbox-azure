@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -10,6 +11,7 @@ import (
 
 type AzureSandbox struct {
 	instances SandboxData
+	sync.WaitGroup
 }
 
 func NewAzureSandbox(dbPool *pgxpool.Pool) *AzureSandbox {
@@ -24,6 +26,8 @@ func (s *AzureSandbox) Create(name string) (SandboxDetails, error) {
 
 	c := make(chan string)
 	e := make(chan error)
+	s.Add(2)
+	defer s.Done()
 
 	go func() {
 		id, err := s.instances.Insert(name)
@@ -41,6 +45,7 @@ func (s *AzureSandbox) Create(name string) (SandboxDetails, error) {
 			log.Logger.Error("Failed to update status for sandbox: ", id, err)
 		}
 
+		s.Done()
 	}()
 
 	select {
@@ -54,6 +59,8 @@ func (s *AzureSandbox) Create(name string) (SandboxDetails, error) {
 func (s *AzureSandbox) Remove(id string) (SandboxDetails, error) {
 	c := make(chan bool)
 	e := make(chan error)
+	s.Add(2)
+	defer s.Done()
 
 	go func() {
 		details, err := s.instances.GetByID(id)
@@ -78,6 +85,7 @@ func (s *AzureSandbox) Remove(id string) (SandboxDetails, error) {
 		time.Sleep(30 * time.Second) //TODO: replace it with the actual Azure sandbox deletion
 
 		s.instances.Delete(id)
+		s.Done()
 
 	}()
 

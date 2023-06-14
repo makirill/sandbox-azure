@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"syscall"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -36,7 +35,7 @@ func main() {
 	tokenAuth := jwtauth.New("HS256", []byte(authSecret), nil)
 
 	// For debugging/example purposes, we generate and print
-	// a sample jwt token with claims `user_id:123` here:
+	// a sample jwt token with claims `user_id:sandbox123` here:
 	_, tokenString, err := tokenAuth.Encode(map[string]interface{}{"user_id": "sandbox123"})
 	if err != nil {
 		log.Err.Fatal(err)
@@ -60,7 +59,8 @@ func main() {
 	//----------------------------------------
 	// Handlers
 	//----------------------------------------
-	baseHandler := NewBaseHandler(models.NewAzureSandbox(dbPool))
+	azureSandbox := models.NewAzureSandbox(dbPool)
+	baseHandler := NewBaseHandler(azureSandbox)
 
 	router := chi.NewRouter()
 
@@ -92,11 +92,15 @@ func main() {
 		log.Err.Fatal(http.ListenAndServe(":"+port, router))
 	}()
 
+	//----------------------------------------
 	// Graceful shutdown
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGINT)
+	//----------------------------------------
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
 
-	<-sigs
+	sig := <-c
 
-	log.Logger.Info("Shutting down...")
+	log.Logger.Info("Got " + sig.String() + " signal. Shutting down...")
+
+	azureSandbox.Wait()
 }
