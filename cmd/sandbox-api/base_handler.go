@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	"github.com/jackc/pgx/v4/pgxpool"
 	v1 "github.com/makirill/sandbox-azure/internal/api/v1"
 	"github.com/makirill/sandbox-azure/internal/log"
 	"github.com/makirill/sandbox-azure/internal/models"
@@ -16,9 +15,9 @@ type BaseHandler struct {
 	model models.Sandbox
 }
 
-func NewBaseHandler(dbPool *pgxpool.Pool) *BaseHandler {
+func NewBaseHandler(model models.Sandbox) *BaseHandler {
 	return &BaseHandler{
-		model: models.InitAzureSandbox(dbPool),
+		model: model,
 	}
 }
 

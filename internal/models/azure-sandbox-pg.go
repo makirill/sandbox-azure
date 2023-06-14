@@ -11,11 +11,11 @@ type AzureSandboxPostgres struct {
 	dbPool *pgxpool.Pool
 }
 
-func InitAzureSandboxesPostgres(dbPool *pgxpool.Pool) (*AzureSandboxPostgres, error) {
+func NewAzureSandboxesPostgres(dbPool *pgxpool.Pool) *AzureSandboxPostgres {
 
 	return &AzureSandboxPostgres{
 		dbPool: dbPool,
-	}, nil
+	}
 
 }
 

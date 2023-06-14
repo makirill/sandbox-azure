@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/makirill/sandbox-azure/internal/log"
+	"github.com/makirill/sandbox-azure/internal/models"
 )
 
 func main() {
@@ -54,7 +55,10 @@ func main() {
 	}
 	defer dbPool.Close()
 
-	baseHandler := NewBaseHandler(dbPool)
+	//----------------------------------------
+	// Handlers
+	//----------------------------------------
+	baseHandler := NewBaseHandler(models.NewAzureSandbox(dbPool))
 
 	router := chi.NewRouter()
 

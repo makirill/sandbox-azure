@@ -12,11 +12,11 @@ type AzureSandbox struct {
 	instances SandboxData
 }
 
-func InitAzureSandbox(dbPool *pgxpool.Pool) *AzureSandbox {
-	sd, _ := InitAzureSandboxesPostgres(dbPool)
+func NewAzureSandbox(dbPool *pgxpool.Pool) *AzureSandbox {
+	pgData := NewAzureSandboxesPostgres(dbPool)
 
 	return &AzureSandbox{
-		instances: sd,
+		instances: pgData,
 	}
 }
 
