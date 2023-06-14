@@ -26,7 +26,8 @@ AS
 $$
 BEGIN
     UPDATE sandboxes
-    SET status = in_status
+    SET status = in_status,
+        updated_at = now()
     WHERE id = in_sandbox_id;
 
     RETURN FOUND;
@@ -40,7 +41,8 @@ AS
 $$
 BEGIN
     UPDATE sandboxes
-    SET expires_at = in_expires_at
+    SET expires_at = in_expires_at, 
+        updated_at = now()
     WHERE id = in_sandbox_id;
 
     RETURN FOUND;
