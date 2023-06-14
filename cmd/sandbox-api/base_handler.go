@@ -3,12 +3,17 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	v1 "github.com/makirill/sandbox-azure/internal/api/v1"
 	"github.com/makirill/sandbox-azure/internal/log"
 	"github.com/makirill/sandbox-azure/internal/models"
+)
+
+const (
+	defaultExpireTime = 7 * 24 * time.Hour
 )
 
 type BaseHandler struct {
@@ -136,7 +141,14 @@ func (h *BaseHandler) CreateSandboxHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sandbox, err := h.model.Create(data.Name) // TODO: add expiration date
+	var expireTime time.Time
+	if data.ExpiresAt.Before(time.Now()) {
+		expireTime = time.Now().Add(defaultExpireTime)
+	} else {
+		expireTime = data.ExpiresAt
+	}
+
+	sandbox, err := h.model.Create(data.Name, expireTime)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		render.Render(w, r, &v1.Error{

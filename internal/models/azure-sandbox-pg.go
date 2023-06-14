@@ -19,10 +19,10 @@ func NewAzureSandboxesPostgres(dbPool *pgxpool.Pool) *AzureSandboxPostgres {
 
 }
 
-func (s *AzureSandboxPostgres) Insert(name string) (string, error) {
+func (s *AzureSandboxPostgres) Insert(name string, expireTime time.Time) (string, error) {
 	id := ""
 
-	err := s.dbPool.QueryRow(context.Background(), "SELECT public.insert_sandbox($1)", name).Scan(&id)
+	err := s.dbPool.QueryRow(context.Background(), "SELECT public.insert_sandbox($1, $2)", name, expireTime).Scan(&id)
 
 	return id, err
 }

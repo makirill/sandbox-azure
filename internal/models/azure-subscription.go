@@ -22,7 +22,7 @@ func NewAzureSandbox(dbPool *pgxpool.Pool) *AzureSandbox {
 	}
 }
 
-func (s *AzureSandbox) Create(name string) (SandboxDetails, error) {
+func (s *AzureSandbox) Create(name string, expireTime time.Time) (SandboxDetails, error) {
 
 	c := make(chan string)
 	e := make(chan error)
@@ -30,7 +30,7 @@ func (s *AzureSandbox) Create(name string) (SandboxDetails, error) {
 	defer s.Done()
 
 	go func() {
-		id, err := s.instances.Insert(name)
+		id, err := s.instances.Insert(name, expireTime)
 		if err != nil {
 			e <- err
 			return

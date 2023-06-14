@@ -33,7 +33,8 @@ type SandboxList struct {
 }
 
 type SandboxRequest struct {
-	Name string `json:"name"`
+	Name      string    `json:"name"`
+	ExpiresAt time.Time `json:"expires_at,omitempty"`
 }
 
 type SandboxUpdateRequest struct {

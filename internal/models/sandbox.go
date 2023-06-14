@@ -18,7 +18,7 @@ type SandboxDetails struct {
 }
 
 type SandboxData interface {
-	Insert(name string) (string, error)
+	Insert(name string, expireTime time.Time) (string, error)
 	Delete(id string) (bool, error)
 	GetAll() ([]SandboxDetails, error)
 	GetByName(name string) ([]SandboxDetails, error)
@@ -28,7 +28,7 @@ type SandboxData interface {
 }
 
 type Sandbox interface {
-	Create(name string) (SandboxDetails, error)
+	Create(name string, expireTime time.Time) (SandboxDetails, error)
 	Remove(id string) (SandboxDetails, error)
 	ListAll() ([]SandboxDetails, error)
 	GetByName(name string) ([]SandboxDetails, error)

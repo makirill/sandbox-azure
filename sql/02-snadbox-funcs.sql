@@ -3,7 +3,7 @@ SET client_min_messages TO warning;
 BEGIN;
 
 -- TODO: Check input values
-CREATE OR REPLACE FUNCTION insert_sandbox(in_name varchar)
+CREATE OR REPLACE FUNCTION insert_sandbox(in_name varchar, in_expires_at timestamp)
     RETURNS uuid
     LANGUAGE 'plpgsql'
 AS
@@ -11,8 +11,8 @@ $$
 DECLARE
     sandbox_id uuid;
 BEGIN
-    INSERT INTO sandboxes (name, status)
-    VALUES (in_name, 'Pending')
+    INSERT INTO sandboxes (name, expires_at,status)
+    VALUES (in_name, in_expires_at, 'Pending')
     RETURNING id INTO sandbox_id;
 
     RETURN sandbox_id;

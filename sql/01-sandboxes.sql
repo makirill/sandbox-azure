@@ -19,7 +19,7 @@ CREATE TABLE sandboxes (
     name varchar(100) NOT NULL CHECK (name <> ''),
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp NOT NULL DEFAULT now(),
-    expires_at timestamp NOT NULL DEFAULT now() + interval '1 week',
+    expires_at timestamp NOT NULL,
     status public.status NOT NULL
 );
 
