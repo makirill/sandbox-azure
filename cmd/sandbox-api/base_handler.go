@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -96,7 +97,17 @@ func (h *BaseHandler) GetSandboxByNameHandler(w http.ResponseWriter, r *http.Req
 }
 
 func (h *BaseHandler) ListSandboxesHandler(w http.ResponseWriter, r *http.Request) {
-	sandboxList, err := h.model.ListAll()
+	limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	offset, err := strconv.Atoi(r.URL.Query().Get("offset"))
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
+	sandboxList, err := h.model.ListAll(limit, offset)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		render.Render(w, r, &v1.Error{

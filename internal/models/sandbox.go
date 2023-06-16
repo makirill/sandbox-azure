@@ -20,7 +20,7 @@ type SandboxDetails struct {
 type SandboxData interface {
 	Insert(name string, expireTime time.Time) (string, error)
 	Delete(id string) (bool, error)
-	GetAll() ([]SandboxDetails, error)
+	GetAll(limit int, offset int) ([]SandboxDetails, error)
 	GetByName(name string) ([]SandboxDetails, error)
 	GetByID(id string) (SandboxDetails, error)
 	UpdateExpiration(id string, expiresAt time.Time) (bool, error)
@@ -30,7 +30,7 @@ type SandboxData interface {
 type Sandbox interface {
 	Create(name string, expireTime time.Time) (SandboxDetails, error)
 	Remove(id string) (SandboxDetails, error)
-	ListAll() ([]SandboxDetails, error)
+	ListAll(limit int, offset int) ([]SandboxDetails, error)
 	GetByName(name string) ([]SandboxDetails, error)
 	GetByUUID(id string) (SandboxDetails, error)
 	UpdateExpiration(id string, expiresAt time.Time) (SandboxDetails, error)

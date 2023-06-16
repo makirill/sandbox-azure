@@ -121,7 +121,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION get_sandbox_all()
+CREATE OR REPLACE FUNCTION get_sandbox_all(in_limit integer, in_offset integer)
     RETURNS table
     (
         id uuid,
@@ -144,7 +144,10 @@ BEGIN
         s.expires_at,
         s.status
     FROM
-        sandboxes s;
+        sandboxes s
+    ORDER BY s.created_at DESC
+    LIMIT in_limit
+    OFFSET in_offset;
 END;
 $$;
 

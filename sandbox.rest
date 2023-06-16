@@ -6,7 +6,7 @@ GET {{baseUrl}}/api/v1/health
 Authorization: Bearer {{accessToken}}
 
 ### Get List of sandboxes
-GET {{baseUrl}}/api/v1/sandboxes
+GET {{baseUrl}}/api/v1/sandboxes?limit=5&offset=10
 Authorization: Bearer {{accessToken}}
 
 ### Create a new sandbox
@@ -18,7 +18,8 @@ Accept: application/json
 Authorization: Bearer {{accessToken}}
 
 {
-    "name": "Sandbox4"
+    "name": "Sandbox3",
+    "expires_at": "2025-01-01T00:00:00.000Z"
 }
 
 ### Get last created Sandbox by id
@@ -69,7 +70,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Delete Sandbox
 
-DELETE {{baseUrl}}/api/v1/sandboxes/4e6e85e1-abd2-471a-a079-1eebafd39c06
+DELETE {{baseUrl}}/api/v1/sandboxes/73cbaf92-57b3-49e5-923a-5d42e7170b36
 Authorization: Bearer {{accessToken}}
 
 

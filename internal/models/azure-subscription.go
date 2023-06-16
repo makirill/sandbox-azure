@@ -97,8 +97,8 @@ func (s *AzureSandbox) Remove(id string) (SandboxDetails, error) {
 	}
 }
 
-func (s *AzureSandbox) ListAll() ([]SandboxDetails, error) {
-	return s.instances.GetAll()
+func (s *AzureSandbox) ListAll(limit int, offset int) ([]SandboxDetails, error) {
+	return s.instances.GetAll(limit, offset)
 }
 
 func (s *AzureSandbox) GetByName(name string) ([]SandboxDetails, error) {

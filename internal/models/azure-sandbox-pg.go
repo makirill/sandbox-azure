@@ -35,9 +35,9 @@ func (s *AzureSandboxPostgres) Delete(id string) (bool, error) {
 	return ok, err
 }
 
-func (s *AzureSandboxPostgres) GetAll() ([]SandboxDetails, error) {
+func (s *AzureSandboxPostgres) GetAll(limit int, offset int) ([]SandboxDetails, error) {
 
-	rows, err := s.dbPool.Query(context.Background(), "SELECT * FROM public.get_sandbox_all()")
+	rows, err := s.dbPool.Query(context.Background(), "SELECT * FROM public.get_sandbox_all($1, $2)", limit, offset)
 	if err != nil {
 		return nil, err
 	}
