@@ -1,0 +1,17 @@
+
+DONE Implement interface for the model and use it
+DONE Fix bug with the updated time in stored procedure
+- Finish for delete sandbox query
+- Implement Azure client auth
+
+DONE Implement API auth
+
+DONE Make Sandbox create query asynchronous
+
+- Check if possible to use tags for the cleanup and keep sandbox records
+DONE Finish implementation for list sandboxes query
+DONE Implement sandbox update (date for cleanup)
+- Implement clean all expired sandboxes
+
+- Generate Swagger Documentation
+- Create Docker container
