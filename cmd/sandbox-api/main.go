@@ -59,7 +59,7 @@ func main() {
 
 	dbPool, err := pgxpool.Connect(context.Background(), connStr)
 	if err != nil {
-		log.Err.Fatal("Error oppening database connection", err)
+		log.Err.Fatal("Error opening database connection", err)
 	}
 	defer dbPool.Close()
 
