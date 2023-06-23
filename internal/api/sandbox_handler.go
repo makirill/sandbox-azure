@@ -96,15 +96,19 @@ func (sh *SandboxHandler) CreateSandbox(ctx context.Context, request CreateSandb
 
 	log.Logger.Info("Sandbox created", "name", sandboxDetails.Name, "id", sandboxDetails.UUID)
 
-	// FIXME: return Location header
-	return CreateSandbox201JSONResponse(Sandbox{
-		Name:      sandboxDetails.Name,
-		Id:        sandboxDetails.UUID,
-		Status:    toSandboxStatus(sandboxDetails.Status),
-		CreatedAt: sandboxDetails.CreatedAt,
-		ExpiresAt: sandboxDetails.ExpiresAt,
-		UpdatedAt: sandboxDetails.UpdatedAt,
-	}), nil
+	return CreateSandbox201JSONResponse{
+		Body: Sandbox{
+			Name:      sandboxDetails.Name,
+			Id:        sandboxDetails.UUID,
+			Status:    toSandboxStatus(sandboxDetails.Status),
+			CreatedAt: sandboxDetails.CreatedAt,
+			ExpiresAt: sandboxDetails.ExpiresAt,
+			UpdatedAt: sandboxDetails.UpdatedAt,
+		},
+		Headers: CreateSandbox201ResponseHeaders{
+			Location: "/sandboxes/" + sandboxDetails.UUID,
+		},
+	}, nil
 
 }
 

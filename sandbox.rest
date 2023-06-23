@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
-@readToken = eyJhbGciOiJFUzI1NiIsImtpZCI6ImZha2Uta2V5LWlkIiwidHlwIjoiSldUIn0.eyJhdWQiOlsiZXhhbXBsZS11c2VycyJdLCJpc3MiOiJmYWtlLWlzc3VlciIsInBlcm0iOltdfQ.ihDyXaXc6AVKL2fB8G3LaKQ2gLYhFsJTGqhH0PmW1JXU76bRKAfEToDKyG0uhkwOZCumupPnPPdHejMvEXEkcA
-@writeToken = eyJhbGciOiJFUzI1NiIsImtpZCI6ImZha2Uta2V5LWlkIiwidHlwIjoiSldUIn0.eyJhdWQiOlsiZXhhbXBsZS11c2VycyJdLCJpc3MiOiJmYWtlLWlzc3VlciIsInBlcm0iOlsic2FuZGJveDp3Il19.shZ1wNAw4GSfB0DINXH-bLWocoNiohZF_XXE5qVzk2jrUtfcYjxXZY7I3861Zud_IRbX3o2djP5-3NY6vaUIJQ
+@readToken = eyJhbGciOiJFUzI1NiIsImtpZCI6ImZha2Uta2V5LWlkIiwidHlwIjoiSldUIn0.eyJhdWQiOlsiZXhhbXBsZS11c2VycyJdLCJpc3MiOiJmYWtlLWlzc3VlciIsInBlcm0iOltdfQ.0MlqZSwJ_kp98E6NReGmGRoGp2p2KGsO5HPGqq3E37Z6SLF3JNCHwifEEF9bRz6WEPWkpRWM5Dmaf9hwAEjyfQ
+@writeToken = eyJhbGciOiJFUzI1NiIsImtpZCI6ImZha2Uta2V5LWlkIiwidHlwIjoiSldUIn0.eyJhdWQiOlsiZXhhbXBsZS11c2VycyJdLCJpc3MiOiJmYWtlLWlzc3VlciIsInBlcm0iOlsic2FuZGJveDp3Il19.BG7rHBZHeb0mOFzTgG7ZEgMSTSSRuw1X4jBoZ5xfbaJ-A8W_8XoftyC8BY7_G_8B7Uk_NbZkfH07p1H5CI-5cg
 
 ### Get Health
 GET {{baseUrl}}/health
@@ -19,7 +19,7 @@ Accept: application/json
 Authorization: BearerAuth {{writeToken}}
 
 {
-    "name": "SandboxNew9",
+    "name": "SandboxNew11",
     "expiresAt": "2025-01-01T00:00:00.000Z"
 }
 
@@ -34,17 +34,17 @@ Authorization: BearerAuth {{writeToken}}
 }
 
 ### Delete last created Sandbox
-DELETE {{baseUrl}}/sandboxes/57de435d-4ed3-4ce6-a5fa-d604c604a800
+DELETE {{baseUrl}}/sandboxes/546f1c5b-e68a-4385-8524-da63785e538d
 Authorization: BearerAuth {{writeToken}}
 
 
 ### Get Sandbox by Name
-GET {{baseUrl}}/sandboxes/name/SandboxNew7
+GET {{baseUrl}}/sandboxes/name/SandboxNew10
 Authorization: BearerAuth {{readToken}}
 
 ### Get Sandbox by id
 
-GET {{baseUrl}}/sandboxes/f9de3cdf-f7ed-4c1d-8a38-e40666346f07
+GET {{baseUrl}}/sandboxes/546f1c5b-e68a-4385-8524-da63785e538d
 Authorization: BearerAuth {{readToken}}
 
 
