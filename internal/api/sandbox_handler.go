@@ -14,7 +14,7 @@ type SandboxHandler struct {
 }
 
 // Helper to map the string status to the SandboxStatus enum
-func toSandboxStatus(status string) *SandboxStatus {
+func toSandboxStatus(status string) SandboxStatus {
 	var statusMap = map[string]SandboxStatus{
 		"deleted": DELETED,
 		"expired": EXPIRED,
@@ -29,7 +29,7 @@ func toSandboxStatus(status string) *SandboxStatus {
 		ret = UNKNOWN
 	}
 
-	return &ret
+	return ret
 }
 
 // Make sure we conform to the StrictServerInterface
@@ -71,12 +71,12 @@ func (sh *SandboxHandler) ListSandboxes(ctx context.Context, request ListSandbox
 	sandboxes := make([]Sandbox, 0, len(detailsList))
 	for _, details := range detailsList {
 		sandboxes = append(sandboxes, Sandbox{
-			Name:      &details.Name,
-			Id:        &details.UUID,
+			Name:      details.Name,
+			Id:        details.UUID,
 			Status:    toSandboxStatus(details.Status),
-			CreatedAt: &details.CreatedAt,
-			ExpiresAt: &details.ExpiresAt,
-			UpdatedAt: &details.UpdatedAt,
+			CreatedAt: details.CreatedAt,
+			ExpiresAt: details.ExpiresAt,
+			UpdatedAt: details.UpdatedAt,
 		})
 	}
 
@@ -98,12 +98,12 @@ func (sh *SandboxHandler) CreateSandbox(ctx context.Context, request CreateSandb
 
 	// FIXME: return Location header
 	return CreateSandbox201JSONResponse(Sandbox{
-		Name:      &sandboxDetails.Name,
-		Id:        &sandboxDetails.UUID,
+		Name:      sandboxDetails.Name,
+		Id:        sandboxDetails.UUID,
 		Status:    toSandboxStatus(sandboxDetails.Status),
-		CreatedAt: &sandboxDetails.CreatedAt,
-		ExpiresAt: &sandboxDetails.ExpiresAt,
-		UpdatedAt: &sandboxDetails.UpdatedAt,
+		CreatedAt: sandboxDetails.CreatedAt,
+		ExpiresAt: sandboxDetails.ExpiresAt,
+		UpdatedAt: sandboxDetails.UpdatedAt,
 	}), nil
 
 }
@@ -122,12 +122,12 @@ func (sh *SandboxHandler) GetSandboxByName(ctx context.Context, request GetSandb
 	sandboxes := make([]Sandbox, 0, len(detailsList))
 	for _, details := range detailsList {
 		sandboxes = append(sandboxes, Sandbox{
-			Name:      &details.Name,
-			Id:        &details.UUID,
+			Name:      details.Name,
+			Id:        details.UUID,
 			Status:    toSandboxStatus(details.Status),
-			CreatedAt: &details.CreatedAt,
-			ExpiresAt: &details.ExpiresAt,
-			UpdatedAt: &details.UpdatedAt,
+			CreatedAt: details.CreatedAt,
+			ExpiresAt: details.ExpiresAt,
+			UpdatedAt: details.UpdatedAt,
 		})
 	}
 
@@ -162,12 +162,12 @@ func (sh *SandboxHandler) GetSandbox(ctx context.Context, request GetSandboxRequ
 	}
 
 	return GetSandbox200JSONResponse(Sandbox{
-		Name:      &sandboxDetails.Name,
-		Id:        &sandboxDetails.UUID,
+		Name:      sandboxDetails.Name,
+		Id:        sandboxDetails.UUID,
 		Status:    toSandboxStatus(sandboxDetails.Status),
-		CreatedAt: &sandboxDetails.CreatedAt,
-		ExpiresAt: &sandboxDetails.ExpiresAt,
-		UpdatedAt: &sandboxDetails.UpdatedAt,
+		CreatedAt: sandboxDetails.CreatedAt,
+		ExpiresAt: sandboxDetails.ExpiresAt,
+		UpdatedAt: sandboxDetails.UpdatedAt,
 	}), nil
 }
 
@@ -184,11 +184,11 @@ func (sh *SandboxHandler) UpdateSandbox(ctx context.Context, request UpdateSandb
 	}
 
 	return UpdateSandbox200JSONResponse(Sandbox{
-		Name:      &sandboxDetails.Name,
-		Id:        &sandboxDetails.UUID,
+		Name:      sandboxDetails.Name,
+		Id:        sandboxDetails.UUID,
 		Status:    toSandboxStatus(sandboxDetails.Status),
-		CreatedAt: &sandboxDetails.CreatedAt,
-		ExpiresAt: &sandboxDetails.ExpiresAt,
-		UpdatedAt: &sandboxDetails.UpdatedAt,
+		CreatedAt: sandboxDetails.CreatedAt,
+		ExpiresAt: sandboxDetails.ExpiresAt,
+		UpdatedAt: sandboxDetails.UpdatedAt,
 	}), nil
 }

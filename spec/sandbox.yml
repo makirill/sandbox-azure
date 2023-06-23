@@ -35,6 +35,13 @@ components:
             - FAILED
             - DELETED
             - UNKNOWN
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+        - expiresAt
+        - status
     SandboxCreate:
       type: object
       properties:
@@ -65,9 +72,6 @@ components:
         message:
           type: string
     Error:
-      required:
-        - code
-        - message
       type: object
       properties:
         code:
@@ -77,6 +81,9 @@ components:
         message:
           type: string
           description: Error message
+      required:
+        - code
+        - message
 
   securitySchemes:
     BearerAuth:
