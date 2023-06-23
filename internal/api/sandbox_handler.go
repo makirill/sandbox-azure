@@ -84,10 +84,7 @@ func (sh *SandboxHandler) ListSandboxes(ctx context.Context, request ListSandbox
 }
 
 func (sh *SandboxHandler) CreateSandbox(ctx context.Context, request CreateSandboxRequestObject) (CreateSandboxResponseObject, error) {
-
-	// FIXME: request.Body.ExpiresAt or request.Body.ExpiresAt can be nil
-
-	sandboxDetails, err := sh.instances.Create(*request.Body.Name, *request.Body.ExpiresAt)
+	sandboxDetails, err := sh.instances.Create(request.Body.Name, request.Body.ExpiresAt)
 	if err != nil {
 		return CreateSandboxdefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,
@@ -175,8 +172,8 @@ func (sh *SandboxHandler) GetSandbox(ctx context.Context, request GetSandboxRequ
 }
 
 func (sh *SandboxHandler) UpdateSandbox(ctx context.Context, request UpdateSandboxRequestObject) (UpdateSandboxResponseObject, error) {
-	// FIXME: request.Body.ExpiresAt or request.Body.ExpiresAt can be nil
-	sandboxDetails, err := sh.instances.UpdateExpiration(request.Id, *request.Body.ExpiresAt)
+
+	sandboxDetails, err := sh.instances.UpdateExpiration(request.Id, request.Body.ExpiresAt)
 	if err != nil {
 		return UpdateSandboxdefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,

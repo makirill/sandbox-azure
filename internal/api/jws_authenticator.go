@@ -27,7 +27,7 @@ func GetJWSFromRequest(r *http.Request) (string, error) {
 
 	prefix := "BearerAuth "
 	if !strings.HasPrefix(authHeader, prefix) {
-		return "", errors.New("Authorization header is malformed")
+		return "", errors.New("authorization header is malformed")
 	}
 
 	return strings.TrimPrefix(authHeader, prefix), nil
