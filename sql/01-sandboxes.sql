@@ -4,12 +4,12 @@ SET client_min_messages TO warning;
 BEGIN;
 
 CREATE TYPE public.status AS ENUM (
-    'Running',
-    'Stopped',
-    'Expired',
-    'Pending',
-    'Failed',
-    'Deleted'
+    'RUNNING',
+    'STOPPED',
+    'EXPIRED',
+    'PENDING',
+    'FAILED',
+    'DELETED'
 );
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

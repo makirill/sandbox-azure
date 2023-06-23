@@ -1,77 +1,50 @@
 @baseUrl = http://localhost:8080
-@accessToken = 
+@readToken = eyJhbGciOiJFUzI1NiIsImtpZCI6ImZha2Uta2V5LWlkIiwidHlwIjoiSldUIn0.eyJhdWQiOlsiZXhhbXBsZS11c2VycyJdLCJpc3MiOiJmYWtlLWlzc3VlciIsInBlcm0iOltdfQ.NYBOBR_ltI_v08hTYjqCQlT_AhnlWe66pXUL4rqSbBg6Q5DQ4qioUjn_5uG8I_I4yakytZZbd_FJmV2DC3EqEQ
+@writeToken = eyJhbGciOiJFUzI1NiIsImtpZCI6ImZha2Uta2V5LWlkIiwidHlwIjoiSldUIn0.eyJhdWQiOlsiZXhhbXBsZS11c2VycyJdLCJpc3MiOiJmYWtlLWlzc3VlciIsInBlcm0iOlsic2FuZGJveDp3Il19.SaFdA78toSBfTtd_rfSYEm4LzjglvlkgnN-iC-hrx2Uv7P-By2kbRT4httV_O56s0CbMRH0cyV_7zWyQtQOtqg
 
 ### Get Health
-GET {{baseUrl}}/api/v1/health
-Authorization: Bearer {{accessToken}}
+GET {{baseUrl}}/health
+Authorization: BearerAuth {{readToken}}
 
 ### Get List of sandboxes
-GET {{baseUrl}}/api/v1/sandboxes?limit=5&offset=10
-Authorization: Bearer {{accessToken}}
+GET {{baseUrl}}/sandboxes?limit=100&offset=0
+Authorization: BearerAuth {{readToken}}
 
 ### Create a new sandbox
 
 # @name createSandbox
-POST {{baseUrl}}/api/v1/sandboxes
+POST {{baseUrl}}/sandboxes
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer {{accessToken}}
+Authorization: BearerAuth {{writeToken}}
 
 {
-    "name": "Sandbox3",
-    "expires_at": "2025-01-01T00:00:00.000Z"
+    "name": "SandboxNew8",
+    "expiresAt": "2025-01-01T00:00:00.000Z"
 }
 
-### Get last created Sandbox by id
-@lastSandbox = {{createSandbox.response.headers.Location}}
-GET {{baseUrl}}{{createSandbox.response.headers.Location}}
-Authorization: Bearer {{accessToken}}
-
 ### Update last created Sandbox with new expiration date
-@lastSandbox = {{createSandbox.response.headers.Location}}
-PATCH {{baseUrl}}{{createSandbox.response.headers.Location}}
+PATCH {{baseUrl}}/sandboxes/57de435d-4ed3-4ce6-a5fa-d604c604a800
 Content-Type: application/json
 Accept: application/json
-Authorization: Bearer {{accessToken}}
+Authorization: BearerAuth {{writeToken}}
 
 {
-    "expires_at": "2024-01-01T21:54:42.123Z"
+    "expiresAt": "2024-01-01T21:54:42.123Z"
 }
 
 ### Delete last created Sandbox
-@lastSandbox = {{createSandbox.response.headers.Location}}
-DELETE {{baseUrl}}{{createSandbox.response.headers.Location}}
-Authorization: Bearer {{accessToken}}
-
-#########################################################################################
+DELETE {{baseUrl}}/sandboxes/57de435d-4ed3-4ce6-a5fa-d604c604a800
+Authorization: BearerAuth {{writeToken}}
 
 
 ### Get Sandbox by Name
-@lastSandbox = {{createSandbox.response.headers.Location}}
-GET {{baseUrl}}/api/v1/sandboxes/name/Sandbox3
-Authorization: Bearer {{accessToken}}
+GET {{baseUrl}}/sandboxes/name/SandboxNew7
+Authorization: BearerAuth {{readToken}}
 
 ### Get Sandbox by id
 
-GET {{baseUrl}}/api/v1/sandboxes/72314611-6249-4ed5-84ce-8bbf406e1821
-Authorization: Bearer {{accessToken}}
-
-
-### Update Sandbox with new expiration date
-
-PATCH {{baseUrl}}/api/v1/sandboxes/991b45e5-63cb-45c0-a33a-df6d7a6e21d5
-Content-Type: application/json
-Accept: application/json
-Authorization: Bearer {{accessToken}}
-
-{
-    "expires_at": "2025-01-01T21:54:42.123Z"
-}
-
-### Delete Sandbox
-
-DELETE {{baseUrl}}/api/v1/sandboxes/73cbaf92-57b3-49e5-923a-5d42e7170b36
-Authorization: Bearer {{accessToken}}
-
+GET {{baseUrl}}/sandboxes/57de435d-4ed3-4ce6-a5fa-d604c604a800
+Authorization: BearerAuth {{readToken}}
 
 

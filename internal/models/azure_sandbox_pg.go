@@ -7,6 +7,9 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+// Make sure we conform to the SandboxData interface
+var _ SandboxData = (*AzureSandboxPostgres)(nil)
+
 type AzureSandboxPostgres struct {
 	dbPool *pgxpool.Pool
 }

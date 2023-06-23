@@ -1,0 +1,269 @@
+openapi: 3.0.3
+info:
+  title: Sandbox Azure API
+  description: This is a Sandbox Azure API server.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+components:
+  schemas:
+    Sandbox:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - RUNNING
+            - STOPPED
+            - EXPIRED
+            - PENDING
+            - FAILED
+            - DELETED
+            - UNKNOWN
+    SandboxCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    SandboxUpdate:
+      type: object
+      properties:
+        expiresAt:
+          type: string
+          format: date-time
+    Status:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - OK
+            - ERROR
+        message:
+          type: string
+    Error:
+      required:
+        - code
+        - message
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+        message:
+          type: string
+          description: Error message
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Health check
+      operationId: health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+
+  /sandboxes:
+    get:
+      summary: List sandboxes
+      description: List sandboxes
+      operationId: listSandboxes
+      parameters:
+        - in: query
+          name: limit
+          description: The number of items to return
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: offset
+          description: The number of items to skip before starting to collect the result set
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sandbox'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a sandbox
+      description: Create a sandbox
+      operationId: createSandbox
+      security:
+        - BearerAuth:
+            - "sandbox:w"
+      requestBody:
+        description: Sandbox to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sandboxes/{id}:
+    get:
+      summary: Get a sandbox
+      description: Get a sandbox
+      operationId: getSandbox
+      parameters:
+        - name: id
+          in: path
+          description: Sandbox ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update a sandbox
+      description: Update a sandbox
+      operationId: updateSandbox
+      security:
+        - BearerAuth:
+            - "sandbox:w"
+      parameters:
+        - name: id
+          in: path
+          description: Sandbox ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Sandbox to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SandboxUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a sandbox
+      description: Delete a sandbox
+      operationId: deleteSandbox
+      security:
+        - BearerAuth:
+            - "sandbox:w"
+      parameters:
+        - name: id
+          in: path
+          description: Sandbox ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sandboxes/name/{name}:
+    get:
+      summary: Get a sandbox by name
+      description: Get a sandbox by name
+      operationId: getSandboxByName
+      parameters:
+        - name: name
+          in: path
+          description: Sandbox name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sandbox'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

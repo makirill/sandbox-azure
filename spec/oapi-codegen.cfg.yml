@@ -1,0 +1,17 @@
+#
+# Configuration for oapi-codegen to generate Sandbox Server Code.
+# For more information, see: https://github.com/deepmap/oapi-codegen
+#
+# Usage:
+#   $ cd api
+#   $ oapi-codegen -config ../spec/oapi-codegen-server.cfg.yml ../spec/sandbox.yml
+#
+package: api
+generate:
+  models: true
+  chi-server: true
+  strict-server: true
+  embedded-spec: true
+compatibility:
+  apply-chi-middleware-first-to-last: true
+output: sandbox.gen.go

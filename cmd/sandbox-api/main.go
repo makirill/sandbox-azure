@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 
+	middleware "github.com/deepmap/oapi-codegen/pkg/chi-middleware"
+	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/makirill/sandbox-azure/internal/api"
 	"github.com/makirill/sandbox-azure/internal/log"
 	"github.com/makirill/sandbox-azure/internal/models"
 )
@@ -26,25 +27,31 @@ func main() {
 	//----------------------------------------
 	// JWT auth
 	//----------------------------------------
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		log.Err.Fatal("JWT_SECRET is not set")
-	}
-
-	authSecret := strings.Trim(jwtSecret, "\r\n\t ")
-	tokenAuth := jwtauth.New("HS256", []byte(authSecret), nil)
-
-	// For debugging/example purposes, we generate and print
-	// a sample jwt token with claims `user_id:sandbox123` here:
-	_, tokenString, err := tokenAuth.Encode(map[string]interface{}{"user_id": "sandbox123"})
+	fa, err := api.NewFakeAuthenticator()
 	if err != nil {
-		log.Err.Fatal(err)
+		fmt.Fprintf(os.Stderr, "Error creating fake authenticator: %s\n", err)
+		os.Exit(1)
 	}
-	log.Debug.Printf("DEBUG: a sample jwt is %s\n\n", tokenString)
+
+	readerJWS, err := fa.CreateJSWWithClaims([]string{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating reader JWS: %s\n", err)
+		os.Exit(1)
+	}
+
+	writerJWS, err := fa.CreateJSWWithClaims([]string{"sandbox:w"})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating writer JWS: %s\n", err)
+		os.Exit(1)
+	}
+
+	log.Debug.Printf("DEBUG: Reader JWS:\n %s\n\n", readerJWS)
+	log.Debug.Printf("DEBUG: Writer JWS:\n %s\n\n", writerJWS)
 
 	//----------------------------------------
 	// Database
 	//----------------------------------------
+
 	connStr := os.Getenv("DATABASE_URL")
 	if connStr == "" {
 		log.Err.Fatal("DATABASE_URL is not set")
@@ -56,40 +63,45 @@ func main() {
 	}
 	defer dbPool.Close()
 
-	//----------------------------------------
-	// Handlers
-	//----------------------------------------
-	azureSandbox := models.NewAzureSandbox(dbPool)
-	baseHandler := NewBaseHandler(azureSandbox)
+	//------------------
+	// OpenAPI Validation
+	//------------------
+	swagger, err := api.GetSwagger()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading swagger spec\n: %s", err)
+		os.Exit(1)
+	}
 
-	router := chi.NewRouter()
+	// Clear out the servers array in the swagger spec, that skips validating
+	// that server names match. We don't know how this thing will be run.
+	swagger.Servers = nil
 
-	router.Use(middleware.CleanPath)
-	router.Use(middleware.RequestID)
-	router.Use(middleware.SetHeader("Content-Type", "application/json"))
-	router.Use(middleware.AllowContentType("application/json"))
+	sandboxController := models.NewAzureSandbox(dbPool)
 
-	// Protected routes
-	router.Group(func(r chi.Router) {
-		// Middleware
-		r.Use(jwtauth.Verifier(tokenAuth))
-		r.Use(jwtauth.Authenticator)
+	// Create an instance fo handler which satisfies the generated interface
+	sandboxHandler := api.NewSandboxHandler(sandboxController)
 
-		// Routes
-		r.Get("/api/v1/health", baseHandler.HealthHandler)
+	sandboxStrictHandler := api.NewStrictHandler(sandboxHandler, nil)
 
-		r.Get("/api/v1/sandboxes", baseHandler.ListSandboxesHandler)
-		r.Get("/api/v1/sandboxes/{uuid}", baseHandler.GetSandboxHandler)
-		r.Get("/api/v1/sandboxes/name/{name}", baseHandler.GetSandboxByNameHandler)
-		r.Post("/api/v1/sandboxes", baseHandler.CreateSandboxHandler)
-		r.Patch("/api/v1/sandboxes/{uuid}", baseHandler.UpdateSandboxHandler)
-		r.Delete("/api/v1/sandboxes/{uuid}", baseHandler.DeleteSandboxHandler)
-	})
+	r := chi.NewRouter()
+
+	// Use validation middleware to validate requests against the OpenAPI schema
+	r.Use(middleware.OapiRequestValidatorWithOptions(swagger,
+		&middleware.Options{
+			Options: openapi3filter.Options{
+				AuthenticationFunc: api.NewAuthenticator(fa),
+			},
+		},
+	))
+
+	// Register sandboxAzure as the handler for the interface
+	api.HandlerFromMux(sandboxStrictHandler, r)
 
 	go func() {
-		// Main server loop
 		log.Logger.Info("Listening on port " + port)
-		log.Err.Fatal(http.ListenAndServe(":"+port, router))
+		log.Err.Fatal(http.ListenAndServe(":"+port, r))
+
+		// TODO: stop the main routine if the server is down
 	}()
 
 	//----------------------------------------
@@ -102,5 +114,5 @@ func main() {
 
 	log.Logger.Info("Got " + sig.String() + " signal. Shutting down...")
 
-	azureSandbox.Wait()
+	sandboxController.Wait()
 }

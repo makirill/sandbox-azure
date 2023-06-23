@@ -27,7 +27,7 @@ type SandboxData interface {
 	UpdateStatus(id string, status string) (bool, error)
 }
 
-type Sandbox interface {
+type SandboxController interface { //TODO: find a better name
 	Create(name string, expireTime time.Time) (SandboxDetails, error)
 	Remove(id string) (SandboxDetails, error)
 	ListAll(limit int, offset int) ([]SandboxDetails, error)

@@ -30,6 +30,7 @@ func (s *AzureSandbox) Create(name string, expireTime time.Time) (SandboxDetails
 	defer s.Done()
 
 	go func() {
+		defer s.Done()
 		id, err := s.instances.Insert(name, expireTime)
 		if err != nil {
 			e <- err
@@ -44,8 +45,6 @@ func (s *AzureSandbox) Create(name string, expireTime time.Time) (SandboxDetails
 		if err != nil {
 			log.Logger.Error("Failed to update status for sandbox: ", id, err)
 		}
-
-		s.Done()
 	}()
 
 	select {
@@ -63,6 +62,8 @@ func (s *AzureSandbox) Remove(id string) (SandboxDetails, error) {
 	defer s.Done()
 
 	go func() {
+		defer s.Done()
+
 		details, err := s.instances.GetByID(id)
 		if err != nil {
 			e <- err
@@ -85,8 +86,6 @@ func (s *AzureSandbox) Remove(id string) (SandboxDetails, error) {
 		time.Sleep(30 * time.Second) //TODO: replace it with the actual Azure sandbox deletion
 
 		s.instances.Delete(id)
-		s.Done()
-
 	}()
 
 	select {
